@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+
+# environment files
+.env
+.env.local
+.env.production
+
+# logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# build files
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# uploads (if local uploads use karo)
+uploads/
+
+# coverage
+coverage/
+
+# temp files
+.tmp/
+.cache/
+
+# PM2
+.pm2/
