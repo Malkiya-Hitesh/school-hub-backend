@@ -1,92 +1,420 @@
-// config/filterOptions.js
-// Single source of truth for all filter enum values.
-// Used by routes for validation and by frontend for dropdowns.
+// helpers/filterOptions.js
 
 const DISTRICTS = [
-  "AHMEDABAD", "AMRELI", "ANAND", "Arvalli", "BANAS KANTHA",
-  "BHARUCH", "BHAVNAGAR", "BOTAD", "CHHOTAUDEPUR", "Dahod",
-  "Dangs", "Devbhumi Dwarka", "GANDHINAGAR", "GIR SOMNATH",
-  "JAMNAGAR", "JUNAGADH", "KACHCHH", "KHEDA", "MAHESANA",
-  "MAHISAGAR", "MORBI", "NARMADA", "NAVSARI", "PANCH MAHALS",
-  "PATAN", "PORBANDAR", "RAJKOT", "SABAR KANTHA", "SURAT",
-  "SURENDRANAGAR", "TAPI", "VADODARA", "VALSAD",
-];
+  'AHMEDABAD',
+  'AMRELI',
+  'ANAND',
+  'ARVALLI',
+  'BANASKANTHA',
+  'BHARUCH',
+  'BHAVNAGAR',
+  'BOTAD',
+  'CHHOTAUDEPUR',
+  'DAHOD',
+  'DANGS',
+  'DEVBHUMIDWARKA',
+  'GANDHINAGAR',
+  'GIRSOMNATH',
+  'JAMNAGAR',
+  'JUNAGADH',
+  'KACHCHH',
+  'KHEDA',
+  'MAHESANA',
+  'MAHISAGAR',
+  'MORBI',
+  'NARMADA',
+  'NAVSARI',
+  'PANCHMAHALS',
+  'PATAN',
+  'PORBANDAR',
+  'RAJKOT',
+  'SABARKANTHA',
+  'SURAT',
+  'SURENDRANAGAR',
+  'TAPI',
+  'VADODARA',
+  'VALSAD'
+]
 
 const DISTRICT_TALUKAS = {
-  AHMEDABAD:           ["DASCROI","DHOLERA","DHOLKA","VIRAMGAM","SANAND","BAVLA","CITY","AMC","DHANDHUKA","DETROJ-RAMPURA"],
-  AMRELI:              ["RAJULA","LATHI","KUKAVAV","AMRELI","DHARI","BABARA","LILIYA","SAVARKUNDLA","JAFRABAD","BAGASARA","KHAMBHA"],
-  ANAND:               ["TARAPUR","KHAMBHAT","ANAND","BORSAD","PETLAD","SOJITRA","UMRETH"],
-  Arvalli:             ["MALPUR","MEGHRAJ","BAYAD","MODASA","BHILODA","DHANSURA"],
-  "BANAS KANTHA":      ["VADGAM","BHABHAR","DANTA","SUIGAM","DEODAR","DEESA","DANTIWADA","AMIRGADH","KANKAREJ","PALANPUR","DHANERA","LAKHANI","THARAD","VAV"],
-  BHARUCH:             ["ZAGHADIA","HANSOT","ANKLESHWAR","JAMBUSAR","AMOD","BHARUCH","NETRANG","VALIA","VAGRA"],
-  BHAVNAGAR:           ["JESAR","PALITANA","GARIYADHAR","SHIHOR","GHOGHA","TALAJA","BHAVNAGAR","VALLBHIPUR","UMRALA","MAHUVA"],
-  BOTAD:               ["BOTAD","RANPUR","GADHADA","BARVALA"],
-  CHHOTAUDEPUR:        ["KAWANT","NASWADI","JETPUR-PAVI","SANKHEDA","BODELI","CHHOTA-UDEPUR"],
-  Dahod:               ["FATEPURA","GARBADA","DHANPUR","SANJELI","DEV.BARIA","LIMKHEDA","SINGVAD","ZALOD","DAHOD"],
-  Dangs:               ["WAGHAI","AHWA","SUBIR"],
-  "Devbhumi Dwarka":   ["BHANVAD","JAMKHAMBHALIYA","JAMKALYANPUR","DWARKA"],
-  GANDHINAGAR:         ["DEHGAM","KALOL","MANSA","GANDHINAGAR"],
-  "GIR SOMNATH":       ["KODINAR","TALALA","SUTRAPADA","VERAVAL","GIRGADHADA","UNA"],
-  JAMNAGAR:            ["KALAVAD","JAMNAGAR","LALPUR","DHROL","JODIYA","JAMJODHPUR"],
-  JUNAGADH:            ["MANAVADAR","MANGROL","MALIYA HATINA","VANTHALI","JUNAGADH","JUNAGADH CORPORATION","KESHOD","BHESAN","VISAVADAR","MENDARDA"],
-  KACHCHH:             ["GANDHIDHAM","ANJAR","BHUJ","RAPAR","ABDASA","MUNDRA","NAKHATRANA","BHACHAU","LAKHAPAT","MANDVI"],
-  KHEDA:               ["KAPADVANJ","KATHLAL","THASARA","KHEDA","MATAR","NADIAD"],
-  MAHESANA:            ["SATLASANA","VADNAGAR","MEHSANA","UNJHA","BECHARAJI","KADI","KHERALU","JOTANA","VISNAGAR","VIJAPUR"],
-  MAHISAGAR:           ["VIRPUR","KHANPUR","SANTRAMPUR","LUNAWADA","KADANA","BALASINOR"],
-  MORBI:               ["MORBI","WANKANER","TANKARA","MALIYA","HALVAD"],
-  NARMADA:             ["NANDOD","DEDIYAPADA","TILAKVADA","SAGBARA","GARUDESHWAR"],
-  NAVSARI:             ["CHIKHLI","KHERGAM","VANSDA","GANDEVI","JALALPOR"],
-  "PANCH MAHALS":      ["JAMBUGHODA","KALOL","SHAHERA","MORVA HADAF","HALOL","GHOGHAMBA","GODHRA"],
-  PATAN:               ["SARASWATI","CHANASMA","SIDDHPUR","SHANKHESHWAR","PATAN","SAMI","HARIJ","RADHANPUR"],
-  PORBANDAR:           ["KUTIYANA","PORBANDAR","RANAVAV"],
-  RAJKOT:              ["DHORAJI","RAJKOT","VINCHHIYA","LODHIKA","JASDAN","JETPUR","UPLETA","GONDAL","KOTDA SANGANI","RAJKOT CORPORATION","PADDHARI","JAMKANDORNA"],
-  "SABAR KANTHA":      ["KHEDBRAHMA","PRANTIJ","TALOD","POSHINA","IDAR","VIJAYNAGAR","VADALI","HIMMATNAGAR"],
-  SURAT:               ["CHORYASI","OLPAD","MANGROL","MAHUVA","UMARPADA","MANDAVI","SURAT CORPO.","BARDOLI","PALASANA","KAMREJ"],
-  SURENDRANAGAR:       ["LIMBDI","MULI","THANGADH","CHUDA","WADHVAN","LAKHTAR","CHOTILA","SAYLA","DHRANGADHRA","PATDI - DASADA"],
-  TAPI:                ["VYARA","SONGADH","NIZAR","KUKARMUNDA"],
-  VADODARA:            ["DESAR","SHINOR","VADODARA CORPORATION","DABHOI","SAVLI","VAGHODIYA","KARJAN","PADRA","VADODARA"],
-  VALSAD:              ["VALSAD","UMBERGAON","DHARAMPUR","VAPI","PARDI","KAPARADA"],
-};
-
-const MEDIUMS = ["Gujarati","English","Hindi","Marathi","Oriya","Sanskrit","Urdu"];
-
-const BOARDS = ["State Board","CBSE","ICSE","International Board","NA"];
-
-const STREAMS = ["Science","Commerce","Arts","Vocational","NA"];
+    MAHESANA: [
+      'SATLASANA',
+      'MEHSANA',
+      'BECHARAJI',
+      'JOTANA',
+      'VADNAGAR',
+      'VISNAGAR',
+      'KADI',
+      'UNJHA',
+      'KHERALU',
+      'VIJAPUR'
+    ],
+    DANGS: [
+      'SUBIR',
+      'WAGHAI',
+      'AHWA'
+    ],
+    BOTAD: [
+      'RANPUR',
+      'GADHADA',
+      'BARVALA',
+      'BOTAD'
+    ],
+    CHHOTAUDEPUR: [
+      'NASWADI',
+      'CHHOTAUDEPUR',
+      'BODELI',
+      'SANKHEDA',
+      'JETPURPAVI',
+      'KAWANT'
+    ],
+    SABARKANTHA: [
+      'TALOD',
+      'POSHINA',
+      'VIJAYNAGAR',
+      'HIMMATNAGAR',
+      'KHEDBRAHMA',
+      'VADALI',
+      'IDAR',
+      'PRANTIJ'
+    ],
+    MAHISAGAR: [
+      'KADANA',
+      'KHANPUR',
+      'VIRPUR',
+      'LUNAWADA',
+      'SANTRAMPUR',
+      'BALASINOR'
+    ],
+    BHARUCH: [
+      'VAGRA',
+      'ZAGHADIA',
+      'AMOD',
+      'NETRANG',
+      'VALIA',
+      'ANKLESHWAR',
+      'JAMBUSAR',
+      'BHARUCH',
+      'HANSOT'
+    ],
+    GIRSOMNATH: [
+      'GIRGADHADA',
+      'UNA',
+      'TALALA',
+      'KODINAR',
+      'SUTRAPADA',
+      'VERAVAL'
+    ],
+    PORBANDAR: [
+      'PORBANDAR',
+      'RANAVAV',
+      'KUTIYANA'
+    ],
+    DAHOD: [
+      'LIMKHEDA',
+      'DAHOD',
+      'ZALOD',
+      'GARBADA',
+      'SANJELI',
+      'DHANPUR',
+      'SINGVAD',
+      'FATEPURA',
+      'DEVBARIA'
+    ],
+    SURAT: [
+      'MANGROL',
+      'MAHUVA',
+      'OLPAD',
+      'CHORYASI',
+      'PALASANA',
+      'SURATCORPO',
+      'MANDAVI',
+      'KAMREJ',
+      'BARDOLI',
+      'UMARPADA'
+    ],
+    JAMNAGAR: [
+      'DHROL',
+      'JAMNAGAR',
+      'LALPUR',
+      'JODIYA',
+      'KALAVAD',
+      'JAMJODHPUR'
+    ],
+    KHEDA: [
+      'THASARA',
+      'VASO',
+      'MAHEMDAVAD',
+      'KATHLAL',
+      'KHEDA',
+      'KAPADVANJ',
+      'NADIAD',
+      'GALTESHWAR',
+      'MAHUDHA',
+      'MATAR'
+    ],
+    VADODARA: [
+      'DABHOI',
+      'SAVLI',
+      'VADODARACORPORATION',
+      'VAGHODIYA',
+      'DESAR',
+      'VADODARA',
+      'KARJAN',
+      'PADRA',
+      'SHINOR'
+    ],
+    RAJKOT: [
+      'JAMKANDORNA',
+      'PADDHARI',
+      'GONDAL',
+      'LODHIKA',
+      'JASDAN',
+      'RAJKOTCORPORATION',
+      'VINCHHIYA',
+      'UPLETA',
+      'DHORAJI',
+      'JETPUR',
+      'KOTDASANGANI',
+      'RAJKOT'
+    ],
+    BANASKANTHA: [
+      'VAV',
+      'DANTA',
+      'VADGAM',
+      'BHABHAR',
+      'PALANPUR',
+      'DEESA',
+      'LAKHANI',
+      'DEODAR',
+      'KANKAREJ',
+      'THARAD',
+      'AMIRGADH',
+      'DANTIWADA',
+      'DHANERA',
+      'SUIGAM'
+    ],
+    NARMADA: [
+      'GARUDESHWAR',
+      'DEDIYAPADA',
+      'SAGBARA',
+      'TILAKVADA',
+      'NANDOD'
+    ],
+    KACHCHH: [
+      'BHACHAU',
+      'GANDHIDHAM',
+      'MANDVI',
+      'MUNDRA',
+      'NAKHATRANA',
+      'BHUJ',
+      'RAPAR',
+      'LAKHAPAT',
+      'ABDASA',
+      'ANJAR'
+    ],
+    AHMEDABAD: [
+      'DASCROI',
+      'CITY',
+      'VIRAMGAM',
+      'AMC',
+      'SANAND',
+      'BAVLA',
+      'DHOLKA',
+      'DHANDHUKA',
+      'DETROJRAMPURA',
+      'DHOLERA',
+      'MANDAL'
+    ],
+    BHAVNAGAR: [
+      'SHIHOR',
+      'UMRALA',
+      'MAHUVA',
+      'VALLBHIPUR',
+      'TALAJA',
+      'GARIYADHAR',
+      'JESAR',
+      'PALITANA',
+      'GHOGHA',
+      'BHAVNAGAR'
+    ],
+    JUNAGADH: [
+      'MANGROL',
+      'MALIYAHATINA',
+      'MENDARDA',
+      'KESHOD',
+      'JUNAGADH',
+      'JUNAGADHCORPORATION',
+      'BHESAN',
+      'VISAVADAR',
+      'MANAVADAR',
+      'VANTHALI'
+    ],
+    VALSAD: [
+      'VALSAD',
+      'VAPI',
+      'UMBERGAON',
+      'PARDI',
+      'KAPARADA',
+      'DHARAMPUR'
+    ],
+    ANAND: [
+      'UMRETH',
+      'TARAPUR',
+      'SOJITRA',
+      'PETLAD',
+      'BORSAD',
+      'KHAMBHAT',
+      'ANKLAV',
+      'ANAND'
+    ],
+    SURENDRANAGAR: [
+      'DHRANGADHRA',
+      'CHOTILA',
+      'THANGADH',
+      'PATDIDASADA',
+      'SAYLA',
+      'CHUDA',
+      'WADHVAN',
+      'LAKHTAR',
+      'LIMBDI',
+      'MULI'
+    ],
+    TAPI: [
+      'KUKARMUNDA',
+      'SONGADH',
+      'UCHCHHAL',
+      'VALOD',
+      'DOLVAN',
+      'VYARA',
+      'NIZAR'
+    ],
+    NAVSARI: [
+      'VANSDA',
+      'CHIKHLI',
+      'JALALPOR',
+      'KHERGAM',
+      'GANDEVI',
+      'NAVSARI'
+    ],
+    PANCHMAHALS: [
+      'KALOL',
+      'SHAHERA',
+      'JAMBUGHODA',
+      'GHOGHAMBA',
+      'HALOL',
+      'GODHRA',
+      'MORVAHADAF'
+    ],
+    AMRELI: [
+      'DHARI',
+      'SAVARKUNDLA',
+      'KUKAVAV',
+      'RAJULA',
+      'JAFRABAD',
+      'AMRELI',
+      'BABARA',
+      'LATHI',
+      'LILIYA',
+      'KHAMBHA',
+      'BAGASARA'
+    ],
+    PATAN: [
+      'SAMI',
+      'SHANKHESHWAR',
+      'SIDDHPUR',
+      'HARIJ',
+      'CHANASMA',
+      'RADHANPUR',
+      'PATAN',
+      'SARASWATI',
+      'SANTALPUR'
+    ],
+    DEVBHUMIDWARKA: [
+      'DWARKA',
+      'JAMKHAMBHALIYA',
+      'JAMKALYANPUR',
+      'BHANVAD'
+    ],
+    GANDHINAGAR: [
+      'KALOL',
+      'DEHGAM',
+      'MANSA',
+      'GANDHINAGAR'
+    ],
+    ARVALLI: [
+      'DHANSURA',
+      'BHILODA',
+      'MALPUR',
+      'MEGHRAJ',
+      'BAYAD',
+      'MODASA'
+    ],
+    MORBI: [
+      'HALVAD',
+      'WANKANER',
+      'MALIYA',
+      'MORBI',
+      'TANKARA'
+    ]
+  }
 
 const MANAGEMENTS = [
-  "Government School",
-  "Government Aided School",
-  "Private School",
-  "Central Government School",
-  "Special Government School",
-  "Recognized Madarsa",
-  "Government Aided Madarsa",
-  "Unrecognized Madarsa",
-  "Unrecognized School",
-];
+  'CENTRALGOVERNMENTSCHOOL',
+  'GOVERNMENTAIDEDSCHOOL',
+  'GOVERNMENTSCHOOL',
+  'PRIVATESCHOOL',
+  'RECOGNIZEDMADARSA',
+  'SPECIALGOVERNMENTSCHOOL'
+]
 
-const SCHOOL_TYPES = ["Boys","Girls","Co-educational"];
+const SCHOOL_TYPES = [ 'BOYS', 'COEDUCATIONAL', 'GIRLS' ]
+const LOCATION_TYPES = [ null, 'RURAL', 'URBAN' ]
 
-const LOCATION_TYPES = ["Rural","Urban"];
+const MEDIUMS =[
+  'ENGLISH', 'GUJARATI',
+  'HINDI',   'MARATHI',
+  'ORIYA',   'SANSKRIT',
+  'URDU'
+]
+
+const BOARDS = [ null, 'CBSE', 'ICSE', 'INTERNATIONALBOARD', 'STATEBOARD' ]
+
+const STREAMS = [ 'ARTS', 'COMMERCE', 'SCIENCE' ,"VOCATIONAL", "OTHER", ]
+  
+
+
+
+
+
+
+
 
 const CATEGORY_TYPES = [
-  "1-Primary",
-  "2-Primary with Upper Primary",
-  "3-Pr. with Up.Pr. Sec. and H.Sec.",
-  "4-Upper Primary only",
-  "5-Up. Pr. Secondary and Higher Sec",
-  "6-Pr. Up Pr. and Secondary Only",
-  "7-Upper Pr. and Secondary",
-  "8-Secondary Only",
-  "10-Secondary with Higher Secondary",
-  "11-Higher Secondary only/Jr. College",
+  null,
+  'HIGHERSECONDARY',
+  'PRIMARY',
+  'PRIMARYTOHIGHERSECONDARY',
+  'PRIMARYTOSECONDARY',
+  'PRIMARYUPPERPRIMARY',
+  'SECONDARY',
+  'SECONDARYHIGHERSECONDARY',
+  'UPPERPRIMARY',
+  'UPPERPRIMARYTOHIGHERSECONDARY',
+  'UPPERPRIMARYTOSECONDARY'
 ];
 
-const GRADE_FROM = [0,1,2,3,4,5,6,7,8,9,10,11];
-const GRADE_TO   = [1,2,3,4,5,6,7,8,9,10,11,12];
+const GRADE_FROM = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
-const SORT_OPTIONS = ["students","name","district","quality","newest"];
+const GRADE_TO = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+const SORT_OPTIONS = [
+  "students",
+  "name",
+  "district",
+  "quality",
+  "newest",
+];
 
 module.exports = {
   DISTRICTS,

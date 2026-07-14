@@ -1,24 +1,47 @@
-const buildFilter = (query) => {
-  const filter = {};
+// helpers/buildFilters.js
 
-  // Only active schools
-  filter.status = "active";
+const {
+  DISTRICTS, DISTRICT_TALUKAS, MEDIUMS, BOARDS,
+  MANAGEMENTS, SCHOOL_TYPES, LOCATION_TYPES, CATEGORY_TYPES,
+  GRADE_FROM, GRADE_TO, STREAMS
+} = require("./filterOptions");
 
-  // Full-text search
-  if (query.q?.trim()) {
-    filter.$text = { $search: query.q.trim() };
+const buildFilter = (query, { useTextIndex = true } = {}) => {
+  const filter = {
+    status: "active",
+  };
+
+  // ── Full-text search ──────────────────────────────────────
+ if (query.q?.trim()) {
+  const term = query.q.trim();
+
+  if (term.length >= 5 && useTextIndex) {
+    filter.$text = {
+      $search: term,
+    };
+  } else {
+    const regex = {
+      $regex: term,
+      $options: "i",
+    };
+
+    filter.$or = [
+      { "basics.schoolName": regex },
+      { "address.village": regex },
+      { "address.taluka": regex },
+      { "address.district": regex },
+    ];
   }
-
-  // District — exact match from enum list
+}
+  // District
   if (query.district && DISTRICTS.includes(query.district)) {
     filter["address.district"] = query.district;
   }
 
-  // Taluka — validate against district if both provided
+  // Taluka
   if (query.taluka) {
     const taluka = query.taluka.trim().toUpperCase();
     if (query.district && DISTRICT_TALUKAS[query.district]) {
-      // Only allow valid talukas for that district
       if (DISTRICT_TALUKAS[query.district].includes(taluka)) {
         filter["address.taluka"] = { $regex: `^${taluka}$`, $options: "i" };
       }
@@ -27,48 +50,55 @@ const buildFilter = (query) => {
     }
   }
 
-  // Village — partial match
+  // Village
   if (query.village) {
     filter["address.village"] = { $regex: query.village.trim(), $options: "i" };
   }
 
-  // Medium — must be from enum list
+  // Medium
   if (query.medium && MEDIUMS.includes(query.medium)) {
     filter["academics.medium"] = { $in: [query.medium] };
   }
 
-  // Board — must be from enum list
+  // Board
   if (query.board && BOARDS.includes(query.board)) {
     filter["academics.board"] = { $in: [query.board] };
   }
 
-  // Management — must be from enum list
+  // Streams
+  if (query.streams && STREAMS.includes(query.streams)) {
+    filter["academics.streams"] = { $in: [query.streams] };
+  }
+
+  // Management
   if (query.management && MANAGEMENTS.includes(query.management)) {
     filter["category.management"] = query.management;
   }
 
-  // School type
+  // School Type
   if (query.schoolType && SCHOOL_TYPES.includes(query.schoolType)) {
     filter["category.schoolType"] = query.schoolType;
   }
 
-  // Location type
+  // Location Type
   if (query.locationType && LOCATION_TYPES.includes(query.locationType)) {
     filter["category.locationType"] = query.locationType;
   }
 
-  // Category type
+  // Category Type
   if (query.categoryType && CATEGORY_TYPES.includes(query.categoryType)) {
     filter["category.type"] = query.categoryType;
   }
 
-  // Grade range — gradeFrom <= requested, gradeTo >= requested
+  // Grade From
   if (query.gradeFrom !== undefined) {
     const gf = Number(query.gradeFrom);
     if (!isNaN(gf) && GRADE_FROM.includes(gf)) {
       filter["academics.gradeFrom"] = { $lte: gf };
     }
   }
+
+  // Grade To
   if (query.gradeTo !== undefined) {
     const gt = Number(query.gradeTo);
     if (!isNaN(gt) && GRADE_TO.includes(gt)) {
@@ -76,9 +106,17 @@ const buildFilter = (query) => {
     }
   }
 
-  // Claimed / Verified filters
-  if (query.isClaimed === "true")  filter.isClaimed  = true;
-  if (query.isVerified === "true") filter.isVerified = true;
+  // Claimed
+  if (query.isClaimed === "true") {
+    filter.isClaimed = true;
+  }
+
+  // Verified
+  if (query.isVerified === "true") {
+    filter.isVerified = true;
+  }
 
   return filter;
 };
+
+module.exports = { buildFilter };

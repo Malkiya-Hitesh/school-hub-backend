@@ -1,7 +1,7 @@
+const AppError = require("../utils/appError");
 const mongoose = require("mongoose");
 
 const {
-  getNearbySchoolsService,
   getSchoolBySlugService,
   getSchoolBySchoolIdService,
   getSchoolByMongoIdService,
@@ -11,25 +11,34 @@ const {
 const { parsePagination } = require("../utils/pagination");
 const { buildFilter } = require("../helpers/buildFilters");
 const { SORT_MAP } = require("../helpers/buildSort");
+const { parseGeoParams } = require("../utils/geo");
 const { LIST_PROJECTION } = require("../config/constants");
 
-
-// GET /api/schools
-const getSchools = async (req, res) => {
+// GET /api/schools  (હવે district/medium/board + lat/lng બંને handle કરે)
+const getSchools = async (req, res, next) => {
   try {
     const { page, limit, skip } = parsePagination(req.query);
 
-    const filter = buildFilter(req.query);
+    const geo = parseGeoParams(req.query);
 
+    // geo active હોય તો regex-based search, નહીં તો $text index
+    const filter = buildFilter(req.query, { useTextIndex: !geo });
+
+    const explicitSort = Boolean(req.query.sortBy);
     const sort = SORT_MAP[req.query.sortBy] || SORT_MAP.newest;
 
+    // $text વાપર્યું હોય તો જ textScore meaningful — geo mode માં $text જ નથી, એટલે filter.$text ક્યારેય geo સાથે true નહીં હોય
     const sortQuery = filter.$text
       ? { score: { $meta: "textScore" }, ...sort }
       : sort;
 
-    const projection = filter.$text
+    let projection = filter.$text
       ? { ...LIST_PROJECTION, score: { $meta: "textScore" } }
       : LIST_PROJECTION;
+
+    if (geo) {
+      projection = { ...projection, distanceMeters: 1 };
+    }
 
     const { schools, total } = await getSchoolsService({
       filter,
@@ -37,6 +46,8 @@ const getSchools = async (req, res) => {
       sortQuery,
       skip,
       limit,
+      geo,
+      explicitSort,
     });
 
     res.json({
@@ -50,161 +61,56 @@ const getSchools = async (req, res) => {
     });
   } catch (err) {
     console.error("GET /schools error:", err.message);
-
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+    next(err);
   }
 };
-
-
-// GET /api/schools/nearby
-const getNearbySchools = async (req, res) => {
-  try {
-    const lat = parseFloat(req.query.lat);
-    const lng = parseFloat(req.query.lng);
-
-    const radius = Math.min(
-      50,
-      parseFloat(req.query.radius) || 10
-    );
-
-    const limit = Math.min(
-      20,
-      parseInt(req.query.limit) || 10
-    );
-
-    if (isNaN(lat) || isNaN(lng)) {
-      return res.status(400).json({
-        success: false,
-        message: "lat and lng are required",
-      });
-    }
-
-    const schools = await getNearbySchoolsService({
-      lat,
-      lng,
-      radius,
-      limit,
-      projection: LIST_PROJECTION,
-    });
-
-    res.json({
-      success: true,
-      count: schools.length,
-      data: schools,
-    });
-  } catch (err) {
-    console.error("GET /nearby error:", err.message);
-
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
-  }
-};
-
 
 // GET /api/schools/slug/:slug
-const getSchoolBySlug = async (req, res) => {
+const getSchoolBySlug = async (req, res, next) => {
   try {
     const school = await getSchoolBySlugService(req.params.slug);
-
-    if (!school) {
-      return res.status(404).json({
-        success: false,
-        message: "School not found",
-      });
-    }
-
-    res.json({
-      success: true,
-      data: school,
-    });
+    if (!school) throw new AppError("School not found", 404);
+    res.json({ success: true, data: school });
   } catch (err) {
     console.error("GET /slug error:", err.message);
-
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+    next(err);
   }
 };
-
 
 // GET /api/schools/by-id/:schoolId
-const getSchoolBySchoolId = async (req, res) => {
+const getSchoolBySchoolId = async (req, res, next) => {
   try {
     const schoolId = parseInt(req.params.schoolId);
-
-    if (isNaN(schoolId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid schoolId",
-      });
-    }
+    if (isNaN(schoolId)) throw new AppError("Invalid schoolId", 400);
 
     const school = await getSchoolBySchoolIdService(schoolId);
+    if (!school) throw new AppError("School not found", 404);
 
-    if (!school) {
-      return res.status(404).json({
-        success: false,
-        message: "School not found",
-      });
-    }
-
-    res.json({
-      success: true,
-      data: school,
-    });
+    res.json({ success: true, data: school });
   } catch (err) {
     console.error("GET /by-id error:", err.message);
-
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+    next(err);
   }
 };
 
-
 // GET /api/schools/:id
-const getSchoolByMongoId = async (req, res) => {
+const getSchoolByMongoId = async (req, res, next) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid id",
-      });
+      throw new AppError("Invalid id", 400);
     }
-
     const school = await getSchoolByMongoIdService(req.params.id);
+    if (!school) throw new AppError("School not found", 404);
 
-    if (!school) {
-      return res.status(404).json({
-        success: false,
-        message: "School not found",
-      });
-    }
-
-    res.json({
-      success: true,
-      data: school,
-    });
+    res.json({ success: true, data: school });
   } catch (err) {
     console.error("GET /:id error:", err.message);
-
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+    next(err);
   }
 };
 
 module.exports = {
   getSchools,
-  getNearbySchools,
   getSchoolBySlug,
   getSchoolBySchoolId,
   getSchoolByMongoId,

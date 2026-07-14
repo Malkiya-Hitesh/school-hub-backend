@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const {
   DISTRICTS, MEDIUMS, BOARDS, STREAMS,
   MANAGEMENTS, SCHOOL_TYPES, LOCATION_TYPES, CATEGORY_TYPES,
-} = require("../config/filterOptions");
+} = require("../helpers/filterOptions");
 
 // ─── Sub-schemas ─────────────────────────────────────────────
 
@@ -48,7 +48,7 @@ const schoolSchema = new Schema(
     udiseCode: { type: String, trim: true, default: null },
     slug: { type: String, unique: true, trim: true, lowercase: true, index: true },
 
-  
+
     _udiseRaw: {
       yearId: { type: Number, default: null },
       yearDesc: { type: String, default: null },
@@ -116,13 +116,13 @@ const schoolSchema = new Schema(
       totalTeacherFemale: { type: Number, default: 0 },
       studentTeacherRatio: { type: Number, default: null },
     },
-fees: {
-  minTuitionFees: { type: Number, default: null },
-  maxTuitionFees: { type: Number, default: null },
-  transportFees: { type: Number, default: null },
-  hostelFees: { type: Number, default: null },
-  otherFees: { type: Number, default: null }
-},
+    fees: {
+      minTuitionFees: { type: Number, default: null },
+      maxTuitionFees: { type: Number, default: null },
+      transportFees: { type: Number, default: null },
+      hostelFees: { type: Number, default: null },
+      otherFees: { type: Number, default: null }
+    },
     // ── Facility (UDISE raw — optional) ──────────────────────
     facility: {
       totalClassrooms: { type: Number, default: null },
@@ -152,13 +152,6 @@ fees: {
     facilities: { type: [facilityItemSchema], default: [] },
 
     // ── Fees ─────────────────────────────────────────────────
-    fees: {
-      minTuitionFees: { type: Number, default: null },
-      maxTuitionFees: { type: Number, default: null },
-      transportFees: { type: Number, default: null },
-      hostelFees: { type: Number, default: null },
-      otherFees: { type: Number, default: null },
-    },
 
     // ── Results ──────────────────────────────────────────────
     results: { type: [resultSchema], default: [] },
@@ -222,12 +215,19 @@ schoolSchema.index(
 );
 
 schoolSchema.index({ "address.district": 1, "address.taluka": 1 }, { name: "district_taluka" });
-schoolSchema.index({ "academics.gradeFrom": 1, "academics.gradeTo": 1 }, { name: "grade_range" });
-schoolSchema.index({ status: 1 }, { name: "is_active" });
+
+schoolSchema.index({ status: 1 }, { name: "status_1" });
 schoolSchema.index({ "category.management": 1 }, { name: "management_1" });
 schoolSchema.index({ "category.locationType": 1 }, { name: "location_type_1" });
 schoolSchema.index({ "category.schoolType": 1 }, { name: "school_type_1" });
-schoolSchema.index({ "academics.totalStudents": -1 }, { name: "students_total_desc" });
+schoolSchema.index(
+  { "academics.medium": 1 },
+  { name: "academics.medium_1" }
+);
+schoolSchema.index(
+  { "academics.board": 1 },
+  { name: "academics.board_1" }
+);
 schoolSchema.index({ createdAt: -1 }, { name: "newest" });
 
 module.exports = mongoose.model("School", schoolSchema, "schools");

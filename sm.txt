@@ -1,0 +1,54 @@
+lats give me all file one by one   📦school-hub-backend
+
+  
+ ┣ 📂config
+ ┃ ┣ 📜constants.js
+ ┃ ┣ 📜db.js
+ ┃ ┗ 📜env.js
+ ┣ 📂controllers
+ ┃ ┣ 📜auth.controller.js
+ ┃ ┣ 📜claim.controller.js
+ ┃ ┣ 📜dashboard.controller.js
+ ┃ ┗ 📜school.controller.js
+ ┣ 📂helpers
+ ┃ ┣ 📜buildFilters.js
+ ┃ ┣ 📜buildSort.js
+ ┃ ┗ 📜filterOptions.js
+ ┣ 📂middleware
+ ┃ ┣ 📜auth.js
+ ┃ ┣ 📜errorHandler.js
+ ┃ ┗ 📜validate.js
+ ┣ 📂models
+ ┃ ┣ 📜School.js
+ ┃ ┣ 📜SchoolClaim.js
+ ┃ ┗ 📜User.js
+ ┣ 📂routes
+ ┃ ┣ 📜auth.routes.js
+ ┃ ┣ 📜claim.routes.js
+ ┃ ┣ 📜dashboard.routes.js
+ ┃ ┗ 📜school.routes.js
+ ┣ 📂services
+ ┃ ┣ 📜auth.service.js
+ ┃ ┣ 📜claim.service.js
+ ┃ ┗ 📜school.service.js
+ ┣ 📂utils
+ ┃ ┣ 📜appError.js
+ ┃ ┣ 📜catchasync.js
+ ┃ ┣ 📜email.js
+ ┃ ┣ 📜mail.js
+ ┃ ┣ 📜otp.js
+ ┃ ┣ 📜pagination.js
+ ┃ ┗ 📜slugify.js
+ ┣ 📂validators
+ ┃ ┣ 📜auth.validator.js
+ ┃ ┗ 📜school.validator.js
+ ┣ 📜.env
+ ┣ 📜.env.example
+ ┣ 📜.gitignore
+ ┣ 📜app.js
+ ┣ 📜package-lock.json
+ ┣ 📜package.json
+ ┗ 📜server.js 
+
+
+full code  curent code jovi si to aapu 

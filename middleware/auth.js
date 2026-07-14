@@ -1,65 +1,75 @@
-// middleware/auth.js
-// Verifies JWT from Authorization header (Bearer token)
-// Attaches req.user = { id, email, role, schoolId }
-
-const jwt  = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const AppError = require("../utils/appError");
 
-// ─── protect ─────────────────────────────────────────────────
-// Use on any route that requires login
+// Protect routes
 const protect = async (req, res, next) => {
-  const token = req.cookies?.schoolHubToken;
+try {
+const token =req.cookies?.schoolHubToken ||
+(req.headers.authorization?.startsWith("Bearer")
+? req.headers.authorization.split(" ")[1]
+: null);
 
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: "Not authorized. Please login.",
-    });
-  }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+if (!token) {
+  return next(new AppError("Not authorized. No token found.", 401));
+}
 
-    // Attach user (without password) to request
-    req.user = await User.findById(decoded.id).select("-password");
+const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (!req.user || !req.user.isActive) {
-      return res.status(401).json({
-        success: false,
-        message: "Account not found or deactivated.",
-      });
-    }
+const user = await User.findById(decoded.id).select("-password");
 
-    next();
-  } catch (err) {
-    return res.status(401).json({
-      success: false,
-      message: "Token invalid or expired. Please login again.",
-    });
-  }
+if (!user) {
+  return next(new AppError("User not found.", 401));
+}
+
+if (!user.isActive) {
+  return next(new AppError("Account is deactivated.", 403));
+}
+
+req.user = user;
+
+next();
+
+
+} catch (err) {
+next(new AppError("Invalid or expired token.", 401));
+}
 };
 
-// ─── requireRole ─────────────────────────────────────────────
-// Usage: requireRole("superAdmin")
+// Role-based access
 const requireRole = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user?.role)) {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied. Insufficient permissions.",
-      });
-    }
-    next();
-  };
-};
+return (req, res, next) => {
+if (!req.user) {
+return next(new AppError("Unauthorized", 401));
+}
 
-// ─── Token generator (used in auth routes) ───────────────────
-const generateToken = (userId) => {
-  return jwt.sign(
-    { id: userId },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+
+if (!roles.includes(req.user.role)) {
+  return next(
+    new AppError("Forbidden: insufficient permissions", 403)
   );
+}
+
+next();
+
+
+};
 };
 
-module.exports = { protect, requireRole, generateToken };
+// Generate JWT
+const generateToken = (userId) => {
+return jwt.sign(
+{ id: userId },
+process.env.JWT_SECRET,
+{
+expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+}
+);
+};
+
+module.exports = {
+protect,
+requireRole,
+generateToken,
+};

@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-const sendOTPEmail = async (email, otp) => {
+const sendOTP = async (email, otp) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -10,11 +10,11 @@ const sendOTPEmail = async (email, otp) => {
   });
 
   await transporter.sendMail({
-    from: "School Hub <no-reply@schoolhub.com>",
+    from: `School Hub <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: "Your OTP Code",
+    subject: "School Claim OTP Verification",
     text: `Your OTP is: ${otp}`,
   });
 };
 
-module.exports = sendOTPEmail;
+module.exports = sendOTP;

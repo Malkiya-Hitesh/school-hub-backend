@@ -1,145 +1,135 @@
-const School = require("../models/School");
-const Claim = require("../models/SchoolClaim");
+const AppError = require("../utils/appError");
+
 const generateOTP = require("../utils/otp");
 const sendOTP = require("../utils/mailer");
-const User = require("../models/User");
 
+const {
+  findSchoolByLast5,
+  createClaim,
+  findClaimById,
+  updateUserSchool,
+  updateSchoolAdminInfo,
+} = require("../services/claim.service");
 
-
+// STEP 1 — Search school
 exports.searchSchool = async (req, res) => {
   try {
     let { last5 } = req.query;
 
     if (!last5) {
-      return res.status(400).json({
-        success: false,
-        message: "last5 is required",
-      });
+      throw new AppError("last5 is required", 400);
     }
 
     last5 = String(last5).trim();
 
-    const school = await School.findOne({
-      udiseCode: { $regex: new RegExp(`${last5}$`) }
-    });
+    const school = await findSchoolByLast5(last5);
 
     if (!school) {
-      return res.status(404).json({
-        success: false,
-        message: "School not found",
-      });
+      throw new AppError("School not found", 404);
     }
 
     res.json({
       success: true,
       school,
     });
-
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+    throw new AppError(err.message, err.statusCode || 500);
   }
 };
 
-
+// STEP 2 — Initiate claim
 exports.initiateClaim = async (req, res) => {
   try {
-    // userId body mathi nahi — JWT cookie mathi aave (protect middleware)
-    
-    const { schoolId, contactName, contactPhone, contactEmail,userId } = req.body;
+    const {
+      schoolId,
+      contactName,
+      contactPhone,
+      contactEmail,
+      userId,
+    } = req.body;
+
     const otp = generateOTP();
 
-    const claim = await Claim.create({
+    const claim = await createClaim({
       userId,
       schoolId,
-      name: contactName,
-      phone: contactPhone,
-      email: contactEmail,
+      contactName,
+      contactPhone,
+      contactEmail,
       otp,
-      otpExpires: Date.now() + 10 * 60 * 1000,
-      status: "draft",
     });
 
     await sendOTP(contactEmail, otp);
 
-    const user = await User.findById(userId);
-    if (user) {
-      user.schoolId = schoolId;
-      await user.save();
-    }
+    await updateUserSchool(userId, schoolId);
 
-    const school = await School.findById(schoolId);
-    if (school) {
-      school.adminInfo = {
-        name: contactName,
-        email: contactEmail,
-        phone: contactPhone,
-        verified: false,
-      };
-      await school.save();
-    }
-    console.log("Claim initiated:", claim._id, "for school:", schoolId);
+    await updateSchoolAdminInfo({
+      schoolId,
+      contactName,
+      contactPhone,
+      contactEmail,
+    });
+
     res.json({
       success: true,
       message: "OTP sent successfully",
       claimId: claim._id,
     });
-
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    throw new AppError(err.message, err.statusCode || 500);
   }
 };
 
-
+// STEP 3 — Verify OTP
 exports.verifyOTP = async (req, res) => {
   try {
     const { claimId, otp } = req.body;
 
-    const claim = await Claim.findById(claimId);
+    const claim = await findClaimById(claimId);
 
     if (!claim) {
-      return res.status(404).json({ success: false, message: "Claim not found" });
+      throw new AppError("Claim not found", 404);
     }
 
     if (claim.otp !== otp || claim.otpExpires < Date.now()) {
-      return res.status(400).json({ success: false, message: "Invalid OTP" });
+      throw new AppError("Invalid OTP", 400);
     }
 
     claim.emailVerified = true;
     claim.otp = null;
-   const school = await School.findById(claim.schoolId);
-    if (school) {
-      school.adminInfo.verified = true;
-      await school.save();
-    }
+
+    await updateSchoolAdminInfo({
+      schoolId: claim.schoolId,
+      contactName: claim.name,
+      contactPhone: claim.phone,
+      contactEmail: claim.email,
+      verified: true,
+    });
 
     await claim.save();
 
-    res.json({ success: true, message: "Email verified" });
-
+    res.json({
+      success: true,
+      message: "Email verified",
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    throw new AppError(err.message, err.statusCode || 500);
   }
 };
 
-
-
-
-
+// STEP 4 — Submit claim
 exports.submitClaim = async (req, res) => {
   try {
     const { claimId, documents } = req.body;
 
-    const claim = await Claim.findById(claimId);
+    const claim = await findClaimById(claimId);
 
     if (!claim) {
-      return res.status(404).json({ success: false, message: "Claim not found" });
+      throw new AppError("Claim not found", 404);
     }
 
     if (!claim.emailVerified) {
-      return res.status(400).json({ success: false, message: "Email not verified" });
+      throw new AppError("Email not verified", 400);
     }
 
     claim.documents = documents;
@@ -151,8 +141,7 @@ exports.submitClaim = async (req, res) => {
       success: true,
       message: "Claim submitted for approval",
     });
-
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    throw new AppError(err.message, err.statusCode || 500);
   }
 };
