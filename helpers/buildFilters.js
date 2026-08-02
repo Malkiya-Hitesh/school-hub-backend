@@ -2,37 +2,39 @@
 
 const {
   DISTRICTS, DISTRICT_TALUKAS, MEDIUMS, BOARDS,
-  MANAGEMENTS, SCHOOL_TYPES, LOCATION_TYPES, CATEGORY_TYPES,
+  MANAGEMENTS, SCHOOL_TYPES, LOCATION_TYPES,
   GRADE_FROM, GRADE_TO, STREAMS
 } = require("./filterOptions");
 
 const buildFilter = (query, { useTextIndex = true } = {}) => {
   const filter = {
-    status: "active",
+    // v2: status is now { type, updatedAt } instead of a flat string
+    "status.type": "ACTIVE",
   };
 
   // ── Full-text search ──────────────────────────────────────
- if (query.q?.trim()) {
-  const term = query.q.trim();
+  if (query.q?.trim()) {
+    const term = query.q.trim();
 
-  if (term.length >= 5 && useTextIndex) {
-    filter.$text = {
-      $search: term,
-    };
-  } else {
-    const regex = {
-      $regex: term,
-      $options: "i",
-    };
+    if (term.length >= 5 && useTextIndex) {
+      filter.$text = {
+        $search: term,
+      };
+    } else {
+      const regex = {
+        $regex: term,
+        $options: "i",
+      };
 
-    filter.$or = [
-      { "basics.schoolName": regex },
-      { "address.village": regex },
-      { "address.taluka": regex },
-      { "address.district": regex },
-    ];
+      filter.$or = [
+        { "basics.schoolName": regex },
+        { "address.village": regex },
+        { "address.taluka": regex },
+        { "address.district": regex },
+      ];
+    }
   }
-}
+
   // District
   if (query.district && DISTRICTS.includes(query.district)) {
     filter["address.district"] = query.district;
@@ -85,11 +87,6 @@ const buildFilter = (query, { useTextIndex = true } = {}) => {
     filter["category.locationType"] = query.locationType;
   }
 
-  // Category Type
-  if (query.categoryType && CATEGORY_TYPES.includes(query.categoryType)) {
-    filter["category.type"] = query.categoryType;
-  }
-
   // Grade From
   if (query.gradeFrom !== undefined) {
     const gf = Number(query.gradeFrom);
@@ -106,14 +103,19 @@ const buildFilter = (query, { useTextIndex = true } = {}) => {
     }
   }
 
-  // Claimed
+  // Claimed — v2: claim.isClaimed
   if (query.isClaimed === "true") {
-    filter.isClaimed = true;
+    filter["claim.isClaimed"] = true;
   }
 
-  // Verified
+  // Verified — v2: verification.isVerified
   if (query.isVerified === "true") {
-    filter.isVerified = true;
+    filter["verification.isVerified"] = true;
+  }
+
+  // NEW (v2): Admission open filter
+  if (query.admissionOpen === "true") {
+    filter["admission.isOpen"] = true;
   }
 
   return filter;

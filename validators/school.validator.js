@@ -7,7 +7,6 @@ const {
   MANAGEMENTS,
   SCHOOL_TYPES,
   LOCATION_TYPES,
-  CATEGORY_TYPES,
   GRADE_FROM,
   GRADE_TO,
   SORT_OPTIONS,
@@ -22,7 +21,6 @@ const validateSchoolQuery = (req, res, next) => {
       management,
       schoolType,
       locationType,
-      categoryType,
       gradeFrom,
       gradeTo,
       sortBy,
@@ -62,13 +60,6 @@ const validateSchoolQuery = (req, res, next) => {
     }
 
     if (
-      categoryType &&
-      !CATEGORY_TYPES.includes(categoryType.toUpperCase())
-    ) {
-      throw new AppError("Invalid categoryType", 400);
-    }
-
-    if (
       gradeFrom &&
       !GRADE_FROM.includes(Number(gradeFrom))
     ) {
@@ -95,6 +86,29 @@ const validateSchoolQuery = (req, res, next) => {
   }
 };
 
+// NEW — for POST /api/schools. Just checks the minimum a school record
+// needs before it can reach the model (which then auto-fills the rest).
+// Mongoose enum/type validation on the schema is still the source of truth;
+// this catches obviously-missing input early with a clear message.
+const validateCreateSchool = (req, res, next) => {
+  try {
+    const { basics, address } = req.body || {};
+
+    if (!basics?.schoolName?.trim()) {
+      throw new AppError("basics.schoolName is required", 400);
+    }
+
+    if (address?.district && !DISTRICTS.includes(address.district.toUpperCase())) {
+      throw new AppError("Invalid address.district", 400);
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   validateSchoolQuery,
+  validateCreateSchool,
 };

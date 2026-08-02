@@ -9,6 +9,7 @@ const {
 } = require("../controllers/claim.controller");
 
 router.get("/search", searchSchool);
+
 router.post("/initiate", initiateClaim);
 router.post("/verify-otp", verifyOTP);
 router.post("/submit", submitClaim);

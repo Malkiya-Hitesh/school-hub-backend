@@ -19,8 +19,8 @@ const getSchoolsService = async ({
           distanceField: "distanceMeters",
           maxDistance: geo.radius * 1000,
           spherical: true,
-          query: filter, 
-            key: "address.geo",// existing district/medium/board filters અહીં જ apply થાય
+          query: filter,
+          key: "address.geo", // existing district/medium/board filters અહીં જ apply થાય
         },
       },
     ];
@@ -63,16 +63,28 @@ const getSchoolsService = async ({
   return { schools, total };
 };
 
+// v2: status is now { type, updatedAt } — filter on "status.type"
 const getSchoolBySlugService = async (slug) => {
-  return await School.findOne({ slug: slug.trim().toLowerCase(), status: "active" }).lean();
+  return await School.findOne({ slug: slug.trim().toLowerCase(), "status.type": "ACTIVE" }).lean();
 };
 
 const getSchoolBySchoolIdService = async (schoolId) => {
-  return await School.findOne({ schoolId, status: "active" }).lean();
+  return await School.findOne({ schoolId, "status.type": "ACTIVE" }).lean();
 };
 
 const getSchoolByMongoIdService = async (id) => {
-  return await School.findOne({ _id: id, status: "active" }).lean();
+  return await School.findOne({ _id: id, "status.type": "ACTIVE" }).lean();
+};
+
+// NEW: createSchoolService
+// Just builds + saves — schoolId, slug, studentTeacherRatio, about.description,
+// seo defaults, and profile.completion are all filled in automatically by the
+// pre-validate hook in models/School.js. Uses .save() (not .create() with
+// insertMany) so that hook always runs.
+const createSchoolService = async (data) => {
+  const school = new School(data);
+  await school.save();
+  return school.toObject();
 };
 
 module.exports = {
@@ -80,4 +92,5 @@ module.exports = {
   getSchoolBySlugService,
   getSchoolBySchoolIdService,
   getSchoolByMongoIdService,
+  createSchoolService,
 };

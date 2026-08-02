@@ -6,6 +6,7 @@ const {
   getSchoolBySchoolIdService,
   getSchoolByMongoIdService,
   getSchoolsService,
+  createSchoolService,
 } = require("../services/school.service");
 
 const { parsePagination } = require("../utils/pagination");
@@ -109,9 +110,35 @@ const getSchoolByMongoId = async (req, res, next) => {
   }
 };
 
+// POST /api/schools  (NEW)
+// schoolId, slug, studentTeacherRatio, about.description, seo.* defaults,
+// and profile.completion are all auto-generated — see models/School.js hook.
+const createSchool = async (req, res, next) => {
+  try {
+    const school = await createSchoolService(req.body);
+    res.status(201).json({ success: true, data: school });
+  } catch (err) {
+    // Duplicate key (schoolId / slug / udiseCode) → clean 409 instead of a raw 500
+    if (err.code === 11000) {
+      const field = Object.keys(err.keyPattern || {})[0] || "field";
+      return next(new AppError(`A school with this ${field} already exists`, 409));
+    }
+    // Mongoose validation errors (bad enum, missing required field, etc.) → 400
+    if (err.name === "ValidationError") {
+      const message = Object.values(err.errors)
+        .map((e) => e.message)
+        .join(", ");
+      return next(new AppError(message, 400));
+    }
+    console.error("POST /schools error:", err.message);
+    next(err);
+  }
+};
+
 module.exports = {
   getSchools,
   getSchoolBySlug,
   getSchoolBySchoolId,
   getSchoolByMongoId,
+  createSchool,
 };

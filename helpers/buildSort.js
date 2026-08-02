@@ -1,6 +1,5 @@
 // helpers/buildSort.js
 
-
 const SORT_MAP = {
   students: {
     "academics.totalStudents": -1,
@@ -12,6 +11,11 @@ const SORT_MAP = {
 
   district: {
     "address.district": 1,
+  },
+
+ 
+  quality: {
+    "profile.completion": -1,
   },
 
   newest: {

@@ -2,19 +2,19 @@ const express = require("express");
 const router = express.Router();
 
 const {
-register,
-login,
-getMe,
-updateMe,
-changePassword,
-logout,
+    register,
+    login,
+    getMe,
+    updateMe,
+    changePassword,
+    logout,
 } = require("../controllers/auth.controller");
 
 const { protect } = require("../middleware/auth");
 
 const {
-validateRegister,
-validateLogin,
+    validateRegister,
+    validateLogin,
 } = require("../validators/auth.validator");
 
 router.post("/register", validateRegister, register);

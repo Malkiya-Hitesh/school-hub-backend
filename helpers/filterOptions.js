@@ -1,5 +1,3 @@
-// helpers/filterOptions.js
-
 const DISTRICTS = [
   'AHMEDABAD',
   'AMRELI',
@@ -381,14 +379,6 @@ const MEDIUMS =[
 const BOARDS = [ null, 'CBSE', 'ICSE', 'INTERNATIONALBOARD', 'STATEBOARD' ]
 
 const STREAMS = [ 'ARTS', 'COMMERCE', 'SCIENCE' ,"VOCATIONAL", "OTHER", ]
-  
-
-
-
-
-
-
-
 
 const CATEGORY_TYPES = [
   null,
@@ -416,6 +406,16 @@ const SORT_OPTIONS = [
   "newest",
 ];
 
+// ── NEW (v2) — added for the new nested document shape ──
+// status.type replaces the old flat `status: "active"` string
+const STATUS_TYPES = ['ACTIVE', 'INACTIVE', 'CLOSED', 'UNVERIFIED'];
+
+// profile.visibility — new in v2
+const VISIBILITY_TYPES = ['PUBLIC', 'PRIVATE'];
+
+// subscription.plan — new in v2. Adjust/extend once you finalize pricing tiers.
+const SUBSCRIPTION_PLANS = ['FREE', 'PREMIUM'];
+
 module.exports = {
   DISTRICTS,
   DISTRICT_TALUKAS,
@@ -429,4 +429,7 @@ module.exports = {
   GRADE_FROM,
   GRADE_TO,
   SORT_OPTIONS,
+  STATUS_TYPES,
+  VISIBILITY_TYPES,
+  SUBSCRIPTION_PLANS,
 };

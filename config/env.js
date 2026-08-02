@@ -11,4 +11,5 @@ JWT_SECRET: process.env.JWT_SECRET,
 JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
 EMAIL_USER: process.env.EMAIL_USER,
 EMAIL_PASS: process.env.EMAIL_PASS,
+GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
 };

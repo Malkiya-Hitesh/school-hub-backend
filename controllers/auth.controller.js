@@ -73,13 +73,13 @@ const { email, password } = req.body;
 const user = await findUserByEmail(email);
 
 if (!user) {
-  throw new AppError("Invalid credentials", 401);
+  throw new AppError("Invalid email", 401);
 }
 
 const isMatch = await user.matchPassword(password);
 
 if (!isMatch) {
-  throw new AppError("Invalid credentials", 401);
+  throw new AppError("Invalid password", 401);
 }
 
 user.lastLoginAt = new Date();
@@ -91,7 +91,7 @@ res.cookie("schoolHubToken", token, {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  maxAge: 1 * 24 * 60 * 60 * 1000,
 });
 
 res.json({

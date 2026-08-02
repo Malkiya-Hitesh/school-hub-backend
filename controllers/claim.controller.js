@@ -14,15 +14,20 @@ const {
 // STEP 1 — Search school
 exports.searchSchool = async (req, res) => {
   try {
-    let { last5 } = req.query;
+    let { last5 ,email} = req.query;
 
     if (!last5) {
-      throw new AppError("last5 is required", 400);
+      throw new AppError("last digits 5 is required", 400);
+    }
+    if (!email) {
+     throw new AppError("email is required", 400);
     }
 
     last5 = String(last5).trim();
 
-    const school = await findSchoolByLast5(last5);
+
+    const school = await findSchoolByLast5(last5,email);
+
 
     if (!school) {
       throw new AppError("School not found", 404);

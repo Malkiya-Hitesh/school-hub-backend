@@ -1,13 +1,15 @@
+
 const School = require("../models/School");
 const Claim = require("../models/SchoolClaim");
 const User = require("../models/User");
 
 // Search school by last 5 UDISE digits
-const findSchoolByLast5 = async (last5) => {
-  return await School.findOne({
+const findSchoolByLast5 = async (last5,e) => {
+  return await School.find({
     udiseCode: {
       $regex: new RegExp(`${last5}$`),
     },
+   "contact.email": e.toLowerCase().trim(),
   });
 };
 
