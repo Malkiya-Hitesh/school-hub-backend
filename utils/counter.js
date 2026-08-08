@@ -1,5 +1,5 @@
 // utils/counter.js
-const Counter = require("../models/Counter");
+const counter = require("../models/counter");
 
 /**
  * Atomically returns the next number in a named sequence.
@@ -12,7 +12,7 @@ const Counter = require("../models/Counter");
  * Otherwise it starts counting up from 1.
  */
 const getNextSequence = async (name) => {
-  const counter = await Counter.findByIdAndUpdate(
+  const counter = await counter.findByIdAndUpdate(
     name,
     { $inc: { seq: 1 } },
     { new: true, upsert: true }
