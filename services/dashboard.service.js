@@ -1,3 +1,5 @@
+// services/dashboard.service.js
+
 const School = require("../models/School");
 
 // ─────────────────────────────────────────────
@@ -5,89 +7,102 @@ const School = require("../models/School");
 // ─────────────────────────────────────────────
 
 const getSchoolByUserSchoolId = async (schoolId) => {
+  return await School.findById(schoolId).lean();
+};
+
+const getSchoolDocument = async (schoolId) => {
   return await School.findById(schoolId);
 };
 
-const registerSchoolService = async (schoolId) => {
-  return await School.findByIdAndUpdate(
-    schoolId,
-    {
-      isClaimed: true,
-    },
-    {
-      new: true,
-    }
-  );
+// ─────────────────────────────────────────────
+// Section Updates (merge, not replace — then .save() to run schema hooks)
+// ─────────────────────────────────────────────
+
+const mergeSection = (target = {}, patch = {}) => {
+  const merged = { ...(target?.toObject ? target.toObject() : target) };
+  for (const [key, value] of Object.entries(patch)) {
+    if (value !== undefined) merged[key] = value;
+  }
+  return merged;
+};
+
+const updateSchoolSectionService = async (schoolId, section, data) => {
+  const school = await School.findById(schoolId);
+  if (!school) return null;
+
+  school[section] = mergeSection(school[section], data);
+  await school.save();
+  return school;
+};
+
+// address.geo needs a slightly deeper merge since it's itself nested one
+// level further (address.geo.coordinates / address.geo.googleMapsUrl).
+const updateAddressService = async (schoolId, data) => {
+  const school = await School.findById(schoolId);
+  if (!school) return null;
+
+  const { geo, ...rest } = data;
+  school.address = mergeSection(school.address, rest);
+  if (geo) {
+    school.address.geo = mergeSection(school.address?.geo, geo);
+  }
+
+  await school.save();
+  return school;
 };
 
 // ─────────────────────────────────────────────
-// Section Updates
+// Array CRUD (results / achievements / facilities)
 // ─────────────────────────────────────────────
 
-const updateSchoolSectionService = async (
-  schoolId,
-  section,
-  data
-) => {
-  return await School.findByIdAndUpdate(
-    schoolId,
-    {
-      $set: {
-        [section]: data,
-      },
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+const addToArrayService = async (schoolId, field, data) => {
+  const school = await School.findById(schoolId);
+  if (!school) return null;
+
+  school[field].push(data);
+  await school.save();
+  return school;
+};
+
+const updateArrayItemService = async (schoolId, field, itemId, data) => {
+  const school = await School.findById(schoolId);
+  if (!school) return null;
+
+  const item = school[field].id(itemId);
+  if (!item) return { school, item: null };
+
+  Object.assign(item, data);
+  await school.save();
+  return { school, item };
+};
+
+const deleteArrayItemService = async (schoolId, field, itemId) => {
+  const school = await School.findById(schoolId);
+  if (!school) return null;
+
+  const item = school[field].id(itemId);
+  if (!item) return { school, deleted: false };
+
+  school[field].pull(itemId);
+  await school.save();
+  return { school, deleted: true };
 };
 
 // ─────────────────────────────────────────────
-// Array CRUD
+// Social links (schema field is `social`, not `socialLinks`)
 // ─────────────────────────────────────────────
 
-const addToArrayService = async (
-  schoolId,
-  field,
-  data
-) => {
-  return await School.findByIdAndUpdate(
-    schoolId,
-    {
-      $push: {
-        [field]: data,
-      },
-    },
-    {
-      new: true,
-    }
-  );
-};
-
-const replaceArrayService = async (
-  schoolId,
-  field,
-  data
-) => {
-  return await School.findByIdAndUpdate(
-    schoolId,
-    {
-      $set: {
-        [field]: data,
-      },
-    },
-    {
-      new: true,
-    }
-  );
+const updateSocialService = async (schoolId, data) => {
+  return await updateSchoolSectionService(schoolId, "social", data);
 };
 
 module.exports = {
   getSchoolByUserSchoolId,
-  registerSchoolService,
+  getSchoolDocument,
   updateSchoolSectionService,
+  updateAddressService,
   addToArrayService,
-  replaceArrayService,
+  updateArrayItemService,
+  deleteArrayItemService,
+  updateSocialService,
 };
-

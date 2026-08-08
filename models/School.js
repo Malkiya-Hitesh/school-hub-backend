@@ -175,10 +175,7 @@ const schoolSchema = new Schema(
         default: null,
       },
 
-      subjects: [{
-        type: String,
-        trim: true,
-      }]
+      subjects:  { type: [String], default: [] }
     },
 
     // ── Category ─────────────────────────────────────────────
@@ -212,19 +209,11 @@ const schoolSchema = new Schema(
         email: String,
       },
 
-      documentsRequired: [{
-        type: String,
-      }],
+      documentsRequired:  { type: [String], default: [] },
 
-      eligibility: {
-        type: String,
-        default: null,
-      },
+      eligibility:  { type: [String], default: [] },
 
-      process: {
-        type: String,
-        default: null,
-      },
+      process: { type: [String], default: [] },
 
       feeStructurePdfUrl: {
         type: String,

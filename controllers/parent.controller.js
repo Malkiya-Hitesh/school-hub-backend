@@ -19,7 +19,7 @@ const createParent = async (req, res) => {
   const { fullName, relation, mobileNumber, email, occupation, address, password } = req.body;
 
   const parent = await Parent.create({
-role: "parents",
+    role: "parents",
     fullName,
     relation,
     mobileNumber,
@@ -29,7 +29,7 @@ role: "parents",
     password,
   });
 
-  
+
   const token = generateToken(parent._id);
 
   res.cookie("schoolHubToken", token, {
@@ -42,52 +42,56 @@ role: "parents",
 
   return res
     .status(201)
-    .json(new ApiResponse(201, parent, "Parent created successfully"));
+    .json(new ApiResponse(201, {
+      success: true,
+      message: "Login successful",
+      user: parent
+    }, "Parent created successfully"));
 }
 
 
 
 // get parent
 const loginParent = async (req, res) => {
- try{
-   const { email, password } = req.body;
-   if (!email || !password) {
-     throw new ApiError(400, "Email and password are required");
-   }
-   
-   const parent = await findParentByEmail(email);
-   if(!parent){
-     throw new AppError("Invalid credentials", 401);
-   }
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      throw new ApiError(400, "Email and password are required");
+    }
 
-    const isMatch = await parent.matchPassword(password);
-   if (!isMatch) {
+    const parent = await findParentByEmail(email);
+    if (!parent) {
       throw new AppError("Invalid credentials", 401);
     }
-   const token = generateToken(parent._id);
 
-   res.cookie("schoolHubToken", token, {
-     httpOnly: true,
-     secure: process.env.NODE_ENV === "production",
-     sameSite: "lax",
-     maxAge: 1 * 24 * 60 * 60 * 1000,
-   });
+    const isMatch = await parent.matchPassword(password);
+    if (!isMatch) {
+      throw new AppError("Invalid credentials", 401);
+    }
+    const token = generateToken(parent._id);
 
-   res.json({
-     success: true,
-     message: "Login successful",
-     user: parent,
-   });
+    res.cookie("schoolHubToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+    });
 
- }catch (err) {
-  console.log(err);
-  (err);
-   res.json({
-    error: err,
-     success: false,
-     message: "Login failed",
-   });
- }
+    res.json({
+      success: true,
+      message: "Login successful",
+      user: parent,
+    });
+
+  } catch (err) {
+    console.log(err);
+    (err);
+    res.json({
+      error: err,
+      success: false,
+      message: "Login failed",
+    });
+  }
 
 }
 
@@ -102,16 +106,16 @@ const getParent = async (req, res) => {
 }
 
 const logout = (req, res) => {
-res.clearCookie("schoolHubToken", {
-httpOnly: true,
-sameSite: "lax",
-secure: process.env.NODE_ENV === "production",
-});
+  res.clearCookie("schoolHubToken", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
 
-res.json({
-success: true,
-message: "Logged out successfully",
-});
+  res.json({
+    success: true,
+    message: "Logged out successfully",
+  });
 };
 
 module.exports = {

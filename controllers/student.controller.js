@@ -68,7 +68,7 @@ throw new ApiError(400, "Validation failed", errors);
 
   return res
     .status(201)
-    .json(new ApiResponse(201, student, "Student created successfully"));
+    .json(new ApiResponse(201, { user: student }, "Student created successfully"));
 });
 
 const loginstudent = async (req, res, next) => {
@@ -110,7 +110,7 @@ const loginstudent = async (req, res, next) => {
      res.json({
       success: false,
       message: "Login failed",
-    
+      user: null
     });
   }
 }

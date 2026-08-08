@@ -18,19 +18,44 @@ const postReviews = asyncHandler(async (req, res) => {
         rating,
         date,
         comment,
-        schoolId
+        schoolId,
+
+        userId,
+        userModel,
 
 
 
     } = req.body;
 
+
+    if (!name || !rating || !date || !comment || !schoolId) {
+        return res.status(400).json(
+            new ApiResponse(
+                400,
+                null,
+                "Please provide all required fields: name, rating, date, comment, schoolId"
+            )
+        );
+    }
+    let userModelLet = "Student";
+
+    if (userModel == "students") {
+        userModelLet = "Student";
+    }
+
+    if (userModel == "parents") {
+        userModelLet = "Parent";
+    }
     const rewiews = await reviews.create({
-         name,
+        name,
         rating,
         date,
         comment,
-        schoolId
+        schoolId,
 
+        userId,
+        userModel: userModelLet,
+        role: userModelLet
     });
 
 
@@ -42,14 +67,14 @@ const postReviews = asyncHandler(async (req, res) => {
 });
 
 
-const getReviews = asyncHandler(async (req , res) => {
-    const {id }= req.query
-   
-    
-    const reviewsdata = await reviews.find({schoolId:id})
+const getReviews = asyncHandler(async (req, res) => {
+    const { id } = req.query
 
 
-     return res
+    const reviewsdata = await reviews.find({ schoolId: id })
+
+
+    return res
         .status(201)
         .json(new ApiResponse(201, reviewsdata, "rewiews"));
 
@@ -57,6 +82,6 @@ const getReviews = asyncHandler(async (req , res) => {
 
 
 module.exports = {
-  postReviews,
-  getReviews
+    postReviews,
+    getReviews
 };

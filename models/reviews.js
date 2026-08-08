@@ -17,6 +17,21 @@ const reviewsSchema = new Schema(
             ref: "School",
             default: null,
         },
+        userId: {
+            type: Schema.Types.ObjectId,
+            refPath: "userModel",
+            default: null,
+        },
+
+        userModel: {
+            type: String,
+            enum: ["Student", "Parent"],
+            default: null,
+        },
+        role: {
+            type: String,
+            default: "Student"
+        },
         comment: {
             type: String,
             required: [true, "msg   is   is required"],

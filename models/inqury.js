@@ -7,7 +7,7 @@ const inqurySchema = new Schema(
         email: {
             type: String,
             required: [true, "Email is required"],
-          
+
             trim: true,
             lowercase: true,
             validate: {
@@ -56,12 +56,27 @@ const inqurySchema = new Schema(
                     `${props.value} is not a valid Indian mobile number`,
             },
             index: true,
+        }, schoolId: {
+            type: Schema.Types.ObjectId,
+            ref: "School",
+            default: null,
         },
-        schoolId: {
-      type: Schema.Types.ObjectId,
-      ref: "School",
-      default: null,
-    },
+
+        userId: {
+            type: Schema.Types.ObjectId,
+            refPath: "userModel",
+            default: null,
+        },
+
+        userModel: {
+            type: String,
+            enum: ["Student", "Parent"],
+            default: null,
+        },
+        role: {
+            type: String,
+            default: "Student"
+        },
         address: {
             district: {
                 type: String,
