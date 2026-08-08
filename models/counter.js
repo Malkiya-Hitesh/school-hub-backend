@@ -1,6 +1,6 @@
 // utils/counter.js
 
-const Counter = require("../models/counter");
+const counter = require("../models/counter");
 
 const getNextSequence = async (name) => {
   const counter = await Counter.findByIdAndUpdate(
