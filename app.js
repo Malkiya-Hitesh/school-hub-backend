@@ -7,11 +7,17 @@ const rateLimit = require("express-rate-limit");
 
 const errorHandler = require("./middleware/errorHandler");
 
+
+
 const app = express();
+
+app.set("trust proxy", 1);
 
 // Security
 app.use(helmet());
 app.use(compression());
+// Security
+
 
 app.use(
     cors({
