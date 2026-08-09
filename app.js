@@ -73,11 +73,15 @@ app.use("/api/reviews", require("./routes/reviews.routes"));
 
 
 // Health check
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
+    const mongoose = require("mongoose");
+
     res.json({
-        message: "🏫 Gujarat School Hub API",
         status: "running",
-        version: "1.0.0",
+        mongoReadyState: mongoose.connection.readyState,
+        mongoHost: mongoose.connection.host || null,
+        mongoDatabase: mongoose.connection.name || null,
+        mongoUriExists: Boolean(process.env.MONGO_URI),
     });
 });
 
