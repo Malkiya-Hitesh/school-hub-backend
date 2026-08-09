@@ -75,14 +75,28 @@ app.use("/api/reviews", require("./routes/reviews.routes"));
 // Health check
 app.get("/", async (req, res) => {
     const mongoose = require("mongoose");
+    const connectDB = require("./config/db");
 
-    res.json({
-        status: "running",
-        mongoReadyState: mongoose.connection.readyState,
-        mongoHost: mongoose.connection.host || null,
-        mongoDatabase: mongoose.connection.name || null,
-        mongoUriExists: Boolean(process.env.MONGO_URI),
-    });
+    try {
+        await connectDB();
+
+        res.json({
+            status: "running",
+            mongoReadyState: mongoose.connection.readyState,
+            mongoHost: mongoose.connection.host || null,
+            mongoDatabase: mongoose.connection.name || null,
+            mongoUriExists: Boolean(process.env.MONGO_URI),
+        });
+    } catch (error) {
+        console.error("Health check MongoDB error:", error);
+
+        res.status(500).json({
+            status: "running",
+            mongoReadyState: mongoose.connection.readyState,
+            mongoUriExists: Boolean(process.env.MONGO_URI),
+            mongoError: error.message,
+        });
+    }
 });
 
 // 404 handler

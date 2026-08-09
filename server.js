@@ -1,3 +1,11 @@
+
+
+
+
+
+
+
+
 require("./config/env");
 
 const app = require("./app");
@@ -12,6 +20,6 @@ connectDB()
         });
     })
     .catch((error) => {
-        console.error("❌ Failed to start server:", error);
+        console.error("❌ Failed to connect MongoDB:", error);
         process.exit(1);
     });
