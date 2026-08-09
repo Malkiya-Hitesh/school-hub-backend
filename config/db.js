@@ -2,9 +2,19 @@ const mongoose = require("mongoose");
 
 const connectDB = async () => {
     try {
+        console.log("🔄 MongoDB connection starting...");
+        console.log(
+            "MONGO_URI exists:",
+            Boolean(process.env.MONGO_URI)
+        );
+
+        if (!process.env.MONGO_URI) {
+            throw new Error("MONGO_URI is missing");
+        }
+
         if (mongoose.connection.readyState === 1) {
             console.log("✅ MongoDB already connected");
-            return;
+            return mongoose.connection;
         }
 
         const conn = await mongoose.connect(process.env.MONGO_URI, {
@@ -16,10 +26,13 @@ const connectDB = async () => {
         console.log("✅ MongoDB Connected");
         console.log("Host:", conn.connection.host);
         console.log("Database:", conn.connection.name);
-        console.log("Ready State:", mongoose.connection.readyState);
+        console.log("ReadyState:", conn.connection.readyState);
+
+        return conn;
     } catch (error) {
-        console.error("❌ MongoDB Connection Error:");
+        console.error("❌ MongoDB Connection Error");
         console.error(error);
+
         throw error;
     }
 };
