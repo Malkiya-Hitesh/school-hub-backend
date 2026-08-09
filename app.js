@@ -7,7 +7,7 @@ const rateLimit = require("express-rate-limit");
 
 const errorHandler = require("./middleware/errorHandler");
 
-
+const connectDB = require("./config/db");
 
 const app = express();
 
@@ -28,7 +28,20 @@ app.use(
 
 app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
+// Connect to MongoDB before handling API requests
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        console.error("❌ Database connection failed:", error);
 
+        res.status(500).json({
+            success: false,
+            message: "Database connection failed",
+        });
+    }
+});
 // Rate limiters
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
