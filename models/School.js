@@ -89,7 +89,7 @@ const resultSchema = new Schema({
 const schoolSchema = new Schema(
   {
     schoolId: { type: Number, unique: true, sparse: true, index: true },
-    udiseCode: { type: String, trim: true, default: null, unique: true, sparse: true },
+    udiseCode: { type: String, trim: true, default: null, sparse: true },
     slug: { type: String, unique: true, trim: true, lowercase: true, index: true },
 
     status: {
@@ -175,7 +175,7 @@ const schoolSchema = new Schema(
         default: null,
       },
 
-      subjects:  { type: [String], default: [] }
+      subjects: { type: [String], default: [] }
     },
 
     // ── Category ─────────────────────────────────────────────
@@ -209,9 +209,9 @@ const schoolSchema = new Schema(
         email: String,
       },
 
-      documentsRequired:  { type: [String], default: [] },
+      documentsRequired: { type: [String], default: [] },
 
-      eligibility:  { type: [String], default: [] },
+      eligibility: { type: [String], default: [] },
 
       process: { type: [String], default: [] },
 
