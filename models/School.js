@@ -327,7 +327,7 @@ schoolSchema.pre("validate", async function (next) {
 
 // ─── Indexes ─────────────────────────────────────────────────
 
-schoolSchema.index({ "address.geo": "2dsphere" });
+
 
 schoolSchema.index(
   {
