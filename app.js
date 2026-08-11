@@ -4,10 +4,9 @@ const helmet = require("helmet");
 const compression = require("compression");
 const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
+const mongoose = require("mongoose");
 
 const errorHandler = require("./middleware/errorHandler");
-
-const connectDB = require("./config/db");
 
 const app = express();
 
@@ -16,32 +15,38 @@ app.set("trust proxy", 1);
 // Security
 app.use(helmet());
 app.use(compression());
-// Security
 
-
+const allowedOrigins = (process.env.ALLOWED_ORIGIN || process.env.FRONTEND_URL || "http://localhost:3000,http://127.0.0.1:3000")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
 app.use(
-  cors({
-    origin: process.env.ALLOWED_ORIGIN,
-    credentials: true,
-  })
-);
-app.use(express.json({ limit: "10kb" }));
-app.use(cookieParser());
-// Connect to MongoDB before handling API requests
-app.use(async (req, res, next) => {
-    try {
-        await connectDB();
-        next();
-    } catch (error) {
-        console.error("❌ Database connection failed:", error);
+    cors({
+        origin(origin, callback) {
+            if (!origin) {
+                return callback(null, true);
+            }
 
-        res.status(500).json({
-            success: false,
-            message: "Database connection failed",
-        });
-    }
-});
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+
+            if (process.env.NODE_ENV !== "production" && /^https?:\/\/localhost(:\d+)?$/.test(origin)) {
+                return callback(null, true);
+            }
+
+            return callback(new Error("Not allowed by CORS"));
+        },
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
+
+app.use(express.json({ limit: "10mb" }));
+app.use(cookieParser());
+
 // Rate limiters
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -69,12 +74,7 @@ app.use("/api", generalLimiter);
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
 
-
-
-
-
 // Routes
-
 app.use("/api/schools", require("./routes/school.routes"));
 app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/dashboard", require("./routes/dashboard.routes"));
@@ -84,15 +84,9 @@ app.use("/api/auth/students", require("./routes/student.routes"));
 app.use("/api/inqury", require("./routes/inqury.routes"));
 app.use("/api/reviews", require("./routes/reviews.routes"));
 
-
 // Health check
 app.get("/", async (req, res) => {
-    const mongoose = require("mongoose");
-    const connectDB = require("./config/db");
-
     try {
-        await connectDB();
-
         res.json({
             status: "running",
             mongoReadyState: mongoose.connection.readyState,
