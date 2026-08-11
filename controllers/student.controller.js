@@ -62,7 +62,7 @@ throw new ApiError(400, "Validation failed", errors);
   res.cookie("schoolHubToken", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 1 * 24 * 60 * 60 * 1000,
   });
 
@@ -96,7 +96,7 @@ const loginstudent = async (req, res, next) => {
     res.cookie("schoolHubToken", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 1 * 24 * 60 * 60 * 1000,
     });
 
@@ -140,7 +140,7 @@ const getstudent = async (req, res) => {
  const logout = (req, res) => {
 res.clearCookie("schoolHubToken", {
 httpOnly: true,
-sameSite: "lax",
+sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 secure: process.env.NODE_ENV === "production",
 });
 
