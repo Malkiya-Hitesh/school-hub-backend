@@ -19,13 +19,13 @@ app.use(compression());
 // Security
 
 
-app.use(
-    cors({
-        origin: true,
-        credentials: true,
-    })
-);
 
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGIN,
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 // Connect to MongoDB before handling API requests

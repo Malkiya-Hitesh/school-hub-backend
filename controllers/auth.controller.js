@@ -31,7 +31,7 @@ const setAuthCookie = (res, token) => {
   res.cookie("schoolHubToken", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: COOKIE_MAX_AGE,
   });
 };
@@ -141,8 +141,8 @@ const changePassword = asyncHandler(async (req, res) => {
 const logout = (req, res) => {
   res.clearCookie("schoolHubToken", {
     httpOnly: true,
-    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
 
   res.json({ success: true, message: "Logged out successfully" });
