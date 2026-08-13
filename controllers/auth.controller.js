@@ -28,12 +28,19 @@ const sanitizeUser = (user) => ({
 const COOKIE_MAX_AGE = parseDurationMs(process.env.JWT_EXPIRES_IN, 24 * 60 * 60 * 1000);
 
 const setAuthCookie = (res, token) => {
-  res.cookie("schoolHubToken", token, {
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: COOKIE_MAX_AGE,
-  });
+  };
+
+  if (process.env.COOKIE_DOMAIN) {
+    // Use explicit domain when provided (e.g., ".example.com") so cookie can be shared
+    cookieOptions.domain = process.env.COOKIE_DOMAIN;
+  }
+
+  res.cookie("schoolHubToken", token, cookieOptions);
 };
 
 // Register

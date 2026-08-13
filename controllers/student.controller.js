@@ -59,12 +59,15 @@ throw new ApiError(400, "Validation failed", errors);
 
   const token = generateToken(student._id);
 
-  res.cookie("schoolHubToken", token, {
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 1 * 24 * 60 * 60 * 1000,
-  });
+  };
+  if (process.env.COOKIE_DOMAIN) cookieOptions.domain = process.env.COOKIE_DOMAIN;
+
+  res.cookie("schoolHubToken", token, cookieOptions);
 
   return res
     .status(201)
