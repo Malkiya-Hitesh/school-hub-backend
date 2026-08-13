@@ -7,6 +7,7 @@ const rateLimit = require("express-rate-limit");
 const mongoose = require("mongoose");
 
 const errorHandler = require("./middleware/errorHandler");
+const connectDB = require("./config/db");
 
 const app = express();
 
@@ -46,6 +47,21 @@ app.use(
 
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
+
+// Ensure MongoDB connection on serverless / Vercel deployments
+app.use(async (req, res, next) => {
+    try {
+        if (require('mongoose').connection.readyState === 1) {
+            return next();
+        }
+
+        await connectDB();
+        return next();
+    } catch (err) {
+        console.error('❌ Database connection failed (middleware):', err.message || err);
+        return res.status(502).json({ success: false, message: 'Database connection failed', error: err.message || String(err) });
+    }
+});
 
 // Rate limiters
 const generalLimiter = rateLimit({
