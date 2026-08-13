@@ -7,7 +7,7 @@ const { asyncHandler } = require("../utils/asyncHandler");
 const { validateParentPayload } = require("../validators/parent.validator");
 const { generateToken } = require("../middleware/auth");
 const { findParentByEmail } = require("../services/parentAuth.service");
-
+const AppError = require("../utils/appError");
 
 
 // POST /api/parents
@@ -84,12 +84,10 @@ const loginParent = async (req, res) => {
     });
 
   } catch (err) {
-    console.log(err);
-    (err);
-    res.json({
-      error: err,
+    console.error('Parent login error:', err && err.message ? err.message : err);
+    return res.status(err && err.statusCode ? err.statusCode : 400).json({
       success: false,
-      message: "Login failed",
+      message: err && err.message ? err.message : "Login failed",
     });
   }
 
